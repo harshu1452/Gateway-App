@@ -1,0 +1,50 @@
+server:
+  port: 8081  # Change the port if needed
+
+spring:
+  application:
+    name: gateway-app
+
+    ssl:
+      bundle: false
+
+  datasource:
+    url: jdbc:mysql://localhost:3303/your_database?useSSL=false&serverTimezone=UTC
+    username: root
+    password: "[password]"
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update  # Change to "none" in production
+    show-sql: true
+
+  logging:
+    level:
+      root: INFO
+      org.springframework: DEBUG
+      org.springframework.web: DEBUG
+      org.springframework.cloud.gateway: TRACE
+
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: http://localhost:8081/
+          predicates:
+            - Path=/users/**
+        - id: order-service
+          uri: http://localhost:8082/
+          predicates:
+            - Path=/orders/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
